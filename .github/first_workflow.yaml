@@ -1,4 +1,4 @@
-name: CI/CD Pipeline for node app
+name: CI/CD Pipeline for node app.
 
 on:
   push:
