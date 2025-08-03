@@ -1,26 +1,29 @@
 name: CI/CD Pipeline for node app
 
-#on:
-#  push:
+on:
+  push:
     branches:
       - main
   pull_request:
     branches:
       - main
-      
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18, 20]  # Run on both Node.js v18 and v20
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
         run: |
@@ -36,14 +39,18 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18, 20]  # Run tests on both Node.js versions
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      - name: Set up Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: ${{ matrix.node-version }}
 
       - name: Install dependencies
         run: |
@@ -56,8 +63,8 @@ jobs:
           npm test
 
   deploy:
+    # Wait for *all* test jobs (both Node.js 18 and 20) to finish
     needs: test
-
     runs-on: ubuntu-latest
 
     steps:
